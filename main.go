@@ -80,7 +80,7 @@ func compare(list1 variableList, list2 variableList) {
 
 	for _, v := range list1.vars {
 		if !list2.contains(v) {
-			fmt.Printf("%v from %v missing in %v\n", v, p1, p2)
+			fmt.Printf("%v \x1b[2mfrom %v missing in %v\x1b[0m\n", v, p1, p2)
 		}
 	}
 }
@@ -146,6 +146,6 @@ func parseEnvFile(content []byte) []string {
 }
 
 func exit(message string) {
-	fmt.Println(message)
+	fmt.Println("\x1b[31m" + message + "\x1b[0m")
 	os.Exit(1)
 }
