@@ -1,6 +1,6 @@
 # env-compare
 
-Tool to compare multiple env files. Ignores empty lines and comments. Only checks if the variables exist, not the content.
+Tool to compare multiple env files. Ignores empty lines and comments from env files. Only checks if the variables exist, not the content. Can also handle json files.
 
 ## Install
 ```

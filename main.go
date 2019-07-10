@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -14,7 +15,7 @@ var caseSensitive *bool
 
 type variableList struct {
 	path string
-	vars map[int]string
+	vars []string
 }
 
 func (l variableList) contains(name string) bool {
@@ -77,9 +78,9 @@ func compare(list1 variableList, list2 variableList) {
 		p2 = path.Base(p2)
 	}
 
-	for l, v := range list1.vars {
+	for _, v := range list1.vars {
 		if !list2.contains(v) {
-			fmt.Printf("%v from %v:%v missing in %v\n", v, p1, l, p2)
+			fmt.Printf("%v from %v missing in %v\n", v, p1, p2)
 		}
 	}
 }
@@ -90,10 +91,43 @@ func parseFile(path string) (*variableList, error) {
 		return nil, err
 	}
 
-	lines := strings.Split(string(contentBytes), "\n")
-	names := map[int]string{}
+	if string(contentBytes[0]) == "{" {
+		vars, err := parseJSONFile(contentBytes)
+		if err != nil {
+			return nil, err
+		}
 
-	for n, line := range lines {
+		return &variableList{
+			path: path,
+			vars: vars,
+		}, nil
+	}
+
+	return &variableList{
+		path: path,
+		vars: parseEnvFile(contentBytes),
+	}, nil
+}
+
+func parseJSONFile(content []byte) ([]string, error) {
+	var target map[string]interface{}
+	if err := json.Unmarshal(content, &target); err != nil {
+		return nil, err
+	}
+
+	names := []string{}
+	for k := range target {
+		names = append(names, k)
+	}
+
+	return names, nil
+}
+
+func parseEnvFile(content []byte) []string {
+	lines := strings.Split(string(content), "\n")
+	names := []string{}
+
+	for _, line := range lines {
 		line = strings.Trim(line, " ")
 
 		if len(line) == 0 {
@@ -105,13 +139,10 @@ func parseFile(path string) (*variableList, error) {
 		}
 
 		parts := strings.Split(line, "=")
-		names[n] = parts[0]
+		names = append(names, parts[0])
 	}
 
-	return &variableList{
-		path: path,
-		vars: names,
-	}, nil
+	return names
 }
 
 func exit(message string) {
