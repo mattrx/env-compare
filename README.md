@@ -19,9 +19,9 @@ Usage of env-compare:
 
 ## Usage
 ```
-$ env-compare path1 path2
+$ env-compare file1 file2
 
-PARAM_1 from .env.dist:39 missing in .env
-PARAM_2 from .env.dist:40 missing in .env
-PARAM_9 from .env:1 missing in .env.dist
+PARAM_1 from file1:39 missing in file2
+PARAM_2 from file1:40 missing in file2
+PARAM_9 from file2:1 missing in file1
 ```
